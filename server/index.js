@@ -9,6 +9,6 @@ const api = require('./api')(app);
 
 const port = 8080;
 
-http.createServer(app).listen(port);
+app.listen(port);
 
 console.log(`Server is listening on port ${port}`);
