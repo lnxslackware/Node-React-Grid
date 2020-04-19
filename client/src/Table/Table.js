@@ -1,75 +1,61 @@
-import React from 'react';
-import data from '../data/data';
+import React, {useState, useEffect} from 'react';
+import tableData from '../data/data';
 import Thead from '../Thead/Thead'
 import Tbody from '../Tbody/Tbody'
 
-class Table extends React.Component {
+function Table(props) {
+    let [data, setData] = useState([]);
+    let [keys, setKeys] = useState([]);
+    
+    let keysMapping = {
+        id: 'Id',
+        first_name: 'First name',
+        last_name: 'Last name',
+        email: 'Email',
+        job_title: 'Job title',
+        department: 'Department'
+    };
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            data: [],
-            keys: [],
-            keysMapping: {
-                id: 'Id',
-                first_name: 'First name',
-                last_name: 'Last name',
-                email: 'Email',
-                job_title: 'Job title',
-                department: 'Department'
-            },
-        };
-    }
-
-    componentDidMount() {
-        data.getData().then((res) => {
+    useEffect(() => {
+        tableData.getData().then((res) => {
             const keys = Object.keys(res[0]);
-            this.setState({
-                data: res,
-                keys : keys
-            });
+            setData(res);
+            setKeys(keys);
         })
         .catch(console.error);
-    }
+    }, []);
 
-    handleSort = e => {
+    let handleSort = e => {
         const creteria = e.target.dataset.sortby;
-        data.sortData(creteria).then(res => {
-            this.setState({
-                data: res
-            });
+        tableData.sortData(creteria).then(res => {
+            setData(res);
         })
         .catch(console.error);
     }
 
-    handleFilter = e => {
+    let handleFilter = e => {
         const creteria = e.target.dataset.filterby;
         const value = e.target.innerHTML;
-        data.filterData({ [creteria] : value}).then(res => {
-            this.setState({
-                data: res
-            });
+        tableData.filterData({ [creteria] : value}).then(res => {
+            setData(res);
         })
         .catch(console.error);
     }
 
-    handleDelete = e => {
+    let handleDelete = e => {
         const id = +e.target.dataset.id;
-        data.deleteData(id).then(res => {
-            this.setState({
-                data: res
-            })
-        });
+        tableData.deleteData(id).then(res => {
+            setData(res);
+        })
+        .catch(console.error);
     }
     
-    render() {
-        return (
-            <table>
-                <Thead keys={this.state.keys} keysMapping={this.state.keysMapping} onClick={this.handleSort}/>
-                <Tbody data={this.state.data} keys={this.state.keys} onFilter={this.handleFilter} onDelete = {this.handleDelete}/>
-            </table>
-        );
-    }
+    return (
+        <table>
+            <Thead keys={keys} keysMapping={keysMapping} onClick={handleSort}/>
+            <Tbody data={data} keys={keys} onFilter={handleFilter} onDelete = {handleDelete}/>
+        </table>
+    )
 }
 
 export default Table;
