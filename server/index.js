@@ -1,14 +1,29 @@
-const http = require('http');
+const config = require('./config/config');
 
 const express = require('express');
 const cors = require('cors');
-const app = express();
 
-app.use(cors());
-const api = require('./api')(app);
+if(config.useDb) {
+    var mongoose = require('mongoose');
+    mongoose.connect(config.connectionString, { useUnifiedTopology: true, useNewUrlParser: true });
 
-const port = 8080;
+    mongoose.connection.on('open', function() {
+        console.log('Connection to db established');
+        configureApp();
+    })
+} else {
+    configureApp();
+}
 
-app.listen(port);
+function configureApp() {
+    const app = express();
 
-console.log(`Server is listening on port ${port}`);
+    app.use(cors());
+    const api = require('./api')(app);
+
+    const port = 8080;
+
+    app.listen(port);
+
+    console.log(`Server is listening on port ${port}`);
+}
